@@ -12,38 +12,38 @@ pipeline {
 
     stages {
         stage('Clone Repository') {
-            echo 'Started cloning repository.'
             steps {
+                echo 'Started cloning repository.'
                 git branch: "${BRANCH}", url: "${GIT_REPO}"
+                echo 'Completed cloning repository.'
             }
-            echo 'Completed cloning repository.'
         }
 
         stage('Build Docker Image') {
-            echo 'Started building docker image.'
             steps {
+                echo 'Started building docker image.'
                 script {
                     docker.build("${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}")
                 }
+                echo 'Completed building docker image.'
             }
-            echo 'Completed building docker image.'
         }
 
         stage('Push Docker Image') {
-            echo 'Started pushing docker image.'
             steps {
+                echo 'Started pushing docker image.'
                 script {
                     docker.withRegistry("http://${REGISTRY}") {
                         docker.image("${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}").push()
                     }
                 }
+                echo 'Completed pushing docker image.'
             }
-            echo 'Completed pushing docker image.'
         }
 
         stage('Run Container from Image') {
-            echo 'Started run container.'
             steps {
+                echo 'Started run container.'
                 script {
                     // Stop and remove existing container if exists
                     sh """
@@ -52,8 +52,8 @@ pipeline {
                     docker run -d --name ${CONTAINER_NAME} -p 3000:8080 ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
                     """
                 }
+                echo 'Completed run container.'
             }
-            echo 'Completed run container.'
         }
     }
 
