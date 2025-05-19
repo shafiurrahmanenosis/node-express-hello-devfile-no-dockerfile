@@ -12,20 +12,25 @@ pipeline {
 
     stages {
         stage('Clone Repository') {
+            echo 'Started cloning repository.'
             steps {
                 git branch: "${BRANCH}", url: "${GIT_REPO}"
             }
+            echo 'Completed cloning repository.'
         }
 
         stage('Build Docker Image') {
+            echo 'Started building docker image.'
             steps {
                 script {
                     docker.build("${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}")
                 }
             }
+            echo 'Completed building docker image.'
         }
 
         stage('Push Docker Image') {
+            echo 'Started pushing docker image.'
             steps {
                 script {
                     docker.withRegistry("http://${REGISTRY}") {
@@ -33,9 +38,11 @@ pipeline {
                     }
                 }
             }
+            echo 'Completed pushing docker image.'
         }
 
         stage('Run Container from Image') {
+            echo 'Started run container.'
             steps {
                 script {
                     // Stop and remove existing container if exists
@@ -46,6 +53,7 @@ pipeline {
                     """
                 }
             }
+            echo 'Completed run container.'
         }
     }
 
