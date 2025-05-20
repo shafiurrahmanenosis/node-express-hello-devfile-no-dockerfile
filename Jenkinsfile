@@ -10,7 +10,8 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/shafiurrahmanenosis/node-express-hello-devfile-no-dockerfile.git'
+                git branch: 'main', 
+                    url: 'https://github.com/shafiurrahmanenosis/node-express-hello-devfile-no-dockerfile.git'
             }
         }
 
