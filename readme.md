@@ -50,13 +50,13 @@ pipeline {
 ```
 
 ## 4 Common Issues & Fixes
-# Issue 1: "docker: not found"
+### Issue 1: "docker: not found"
 ```bash
 # Install Docker CLI in container
 docker exec -it -u root jenkins \
   apt-get update && apt-get install -y docker.io
 ```
-# Issue2: Issue 2: Permission denied on docker.sock
+### Issue2: Issue 2: Permission denied on docker.sock
 ```bash
 docker run ... --group-add $(stat -c "%g" /var/run/docker.sock) ...
 ```
