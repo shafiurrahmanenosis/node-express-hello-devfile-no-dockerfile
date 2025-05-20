@@ -95,14 +95,9 @@ stage('Run Image for Verification') {
 }
 ```
 ### Post-Build Actions
-- Always: Runs cleanup regardless of success/failure.
 - Success/Failure: Provides pipeline status notifications.
 ```bash
 post {
-    always {
-        echo 'Cleaning up...'
-        sh "docker rm -f ${IMAGE_NAME} || true"  // Force-clean the test container
-    }
     success {
         echo 'Pipeline completed successfully!'
     }
