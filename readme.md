@@ -14,6 +14,7 @@ docker run -d \
   -v /var/run/docker.sock:/var/run/docker.sock \
   --group-add $(stat -c "%g" /var/run/docker.sock) \
   jenkins/jenkins:lts
+```bash
 
 ## 2. Local Docker Registry
 ```bash
@@ -26,6 +27,7 @@ docker run -d \
 
 # Verify
 curl http://localhost:5000/v2/_catalog
+```bash
 
 ## 3. Jenkinsfile Example
 ```bash
@@ -45,3 +47,4 @@ pipeline {
         }
     }
 }
+```bash
