@@ -14,3 +14,34 @@ docker run -d \
   -v /var/run/docker.sock:/var/run/docker.sock \
   --group-add $(stat -c "%g" /var/run/docker.sock) \
   jenkins/jenkins:lts
+
+## 2. Local Docker Registry
+```bash
+# Start registry
+docker run -d \
+  --name registry \
+  -p 5000:5000 \
+  -v registry-data:/var/lib/registry \
+  registry:2
+
+# Verify
+curl http://localhost:5000/v2/_catalog
+
+## 3. Jenkinsfile Example
+```bash
+pipeline {
+    agent any
+    environment {
+        REGISTRY = "host.docker.internal:5000"  # For Docker containers
+        IMAGE_NAME = "node-hello-app"
+        IMAGE_TAG = "latest"
+    }
+    stages {
+        stage('Build') {
+            steps { sh "docker build -t ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} ." }
+        }
+        stage('Push') {
+            steps { sh "docker push ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}" }
+        }
+    }
+}
