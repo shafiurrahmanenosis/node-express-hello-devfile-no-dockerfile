@@ -40,7 +40,7 @@ pipeline {
                       docker run -d \
                         --name ${IMAGE_NAME} \
                         -p 8080:8080 \
-                        --restart unless-stopped \ 
+                        --restart unless-stopped
                         ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
                     """
                 }
