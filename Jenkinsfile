@@ -53,8 +53,9 @@ pipeline {
 
     post {
         always {
-            sh "docker logs ${IMAGE_NAME} > container.log 2>&1 || true"
-            archiveArtifacts artifacts: 'container.log'
+            echo 'Stopping and removing container...'
+            sh "docker stop ${IMAGE_NAME} || true"
+            sh "docker rm -f ${IMAGE_NAME} || true"
         }
         success {
             echo 'Pipeline completed successfully!'
