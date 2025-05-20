@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        REGISTRY = "http://localhost:5000"
+        REGISTRY = "localhost:5000"
         IMAGE_NAME = "node-hello-app"
         IMAGE_TAG = "latest"
     }
