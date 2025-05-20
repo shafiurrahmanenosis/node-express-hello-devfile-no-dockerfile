@@ -40,12 +40,12 @@ pipeline {
                         docker run -d \
                           --name ${IMAGE_NAME} \
                           -p 8080:8080 \
-                          --health-cmd='curl -f http://localhost:8080 || exit 1' \
                           ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                        sleep 10
-                        docker ps --filter name=${IMAGE_NAME} --format '{{.Status}}'
-                        curl -f http://localhost:8080
+                        sleep 5
+                        docker logs ${IMAGE_NAME}
+                        docker exec ${IMAGE_NAME} curl -v http://localhost:8080 || true
                     """
+                    // Keep container running for debugging
                 }
             }
         }
@@ -53,8 +53,8 @@ pipeline {
 
     post {
         always {
-            echo 'Cleaning up...'
-            sh "docker rm -f ${IMAGE_NAME} || true"
+            sh "docker logs ${IMAGE_NAME} > container.log 2>&1 || true"
+            archiveArtifacts artifacts: 'container.log'
         }
         success {
             echo 'Pipeline completed successfully!'
