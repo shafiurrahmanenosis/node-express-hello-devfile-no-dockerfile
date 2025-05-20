@@ -45,7 +45,7 @@ pipeline {
 ```
 ### 2. Pipeline Stages
 #### Stage 1: Checkout Code
-Pulls the latest code from your version control system.
+- Pulls the latest code from your version control system.
 ```bash
 stage('Checkout') {
     steps {
@@ -55,8 +55,8 @@ stage('Checkout') {
 ```
 
 #### Stage 2: Build Docker Image
-Builds a Docker image from the Dockerfile in your repository.
-Tags it with: localhost:5000/node-hello-app:latest
+- Builds a Docker image from the Dockerfile in your repository.
+- Tags it with: localhost:5000/node-hello-app:latest
 ```bash
 stage('Build Docker Image') {
     steps {
@@ -67,7 +67,7 @@ stage('Build Docker Image') {
 }
 ```
 #### Stage 3: Push to Registry
-Pushes the built image to your local Docker registry (port 5000).
+- Pushes the built image to your local Docker registry (port 5000).
 ```bash
 stage('Push Image') {
     steps {
@@ -80,8 +80,8 @@ stage('Push Image') {
 }
 ```
 #### Stage 4: Run for Verification
-Cleans up any existing container (ignores errors if none exists).
-Runs a new container from the pushed image, mapping port 8080.
+- Cleans up any existing container (ignores errors if none exists).
+- Runs a new container from the pushed image, mapping port 8080.
 ```bash
 stage('Run Image for Verification') {
     steps {
@@ -94,6 +94,23 @@ stage('Run Image for Verification') {
     }
 }
 ```
+### Post-Build Actions
+- Always: Runs cleanup regardless of success/failure.
+- Success/Failure: Provides pipeline status notifications.
+```bash
+post {
+    always {
+        echo 'Cleaning up...'
+        sh "docker rm -f ${IMAGE_NAME} || true"  // Force-clean the test container
+    }
+    success {
+        echo 'Pipeline completed successfully!'
+    }
+    failure {
+        echo 'Pipeline failed. Check logs!'
+    }
+}
+```
 
 ## 4 Common Issues & Fixes
 ### Issue 1: "docker: not found"
@@ -102,7 +119,9 @@ stage('Run Image for Verification') {
 docker exec -it -u root jenkins \
   apt-get update && apt-get install -y docker.io
 ```
-### Issue2: Issue 2: Permission denied on docker.sock
+
+
+### Issue 2: Permission denied on docker.sock
 ```bash
 docker run ... --group-add $(stat -c "%g" /var/run/docker.sock) ...
 ```
