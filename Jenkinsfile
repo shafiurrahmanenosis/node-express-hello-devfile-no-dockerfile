@@ -38,7 +38,7 @@ pipeline {
                     catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
                         sh "docker rm -f ${IMAGE_NAME}"
                     }
-                    sh "docker run -d --name ${IMAGE_NAME} -p 3000:3000 ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker run -d --name ${IMAGE_NAME} -p 8080:8080 ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
                 }
             }
         }
