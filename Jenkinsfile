@@ -2,15 +2,15 @@ pipeline {
     agent any
 
     environment {
-        REGISTRY = "localhost:5000"
+        REGISTRY = "http://localhost:5000"
         IMAGE_NAME = "node-hello-app"
-        IMAGE_TAG = "1"
+        IMAGE_TAG = "latest"
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                git 'https://github.com/shafiurrahmanenosis/node-express-hello-devfile-no-dockerfile.git'
+                checkout scm
             }
         }
 
@@ -22,21 +22,23 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Push Image') {
             steps {
                 script {
-                    docker.withRegistry("http://${REGISTRY}", '') {
+                    docker.withRegistry("http://${REGISTRY}", '') { 
                         docker.image("${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}").push()
                     }
                 }
             }
         }
 
-        stage('Pull and Run Image') {
+        stage('Run Image for Verification') {
             steps {
                 script {
-                    sh "docker pull ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
-                    sh "docker run -d -p 8080:8080 --name test-container ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                        sh "docker rm -f ${IMAGE_NAME}"
+                    }
+                    sh "docker run -d --name ${IMAGE_NAME} -p 3000:3000 ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
                 }
             }
         }
@@ -44,12 +46,14 @@ pipeline {
 
     post {
         always {
-            script {
-                sh "docker rm -f test-container || true"
-            }
+            echo 'Cleaning up...'
+            sh "docker rm -f ${IMAGE_NAME} || true"
+        }
+        success {
+            echo 'Pipeline completed successfully!'
         }
         failure {
-            echo 'Build failed!'
+            echo 'Pipeline failed. Check logs!'
         }
     }
 }
