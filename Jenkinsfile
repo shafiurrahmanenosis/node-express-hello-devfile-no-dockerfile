@@ -4,7 +4,7 @@ pipeline {
     environment {
         REGISTRY = "localhost:5000"
         IMAGE_NAME = "node-hello-app"
-        IMAGE_TAG = "latest"
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
 
     stages {
@@ -35,10 +35,17 @@ pipeline {
         stage('Run Image for Verification') {
             steps {
                 script {
-                    catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                        sh "docker rm -f ${IMAGE_NAME}"
-                    }
-                    sh "docker run -d --name ${IMAGE_NAME} -p 8080:8080 ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker rm -f ${IMAGE_NAME} || true"
+                    sh """
+                        docker run -d \
+                          --name ${IMAGE_NAME} \
+                          -p 8080:8080 \
+                          --health-cmd='curl -f http://localhost:8080 || exit 1' \
+                          ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                        sleep 10
+                        docker ps --filter name=${IMAGE_NAME} --format '{{.Status}}'
+                        curl -f http://localhost:8080
+                    """
                 }
             }
         }
